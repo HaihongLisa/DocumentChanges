@@ -12,25 +12,25 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
-import Policies.ByDescription;
+import Policies.ByType;
 
 /**
- * Default release notes policy, by which it gets changes for two versions
- * It override ByDescription function and return HashMap<HashMap<String, HashMap<String, String>>>
+ * Get changes based on type user entered. The default policy must be called first, it will filter based on default policy's result
+ * It override ByType function and return HashMap<HashMap<String, HashMap<String, String>>>
  * 	Key: version value: release notes map for that version with key: id, value: summary
  * @author Haihong Luo
  *
  */
-public class WebByDescription implements ByDescription {
+public class WebByType implements ByType {
 	private HashMap<String, Integer> columnMap;
 	
-	public WebByDescription(String token, String version1, String version2) throws Exception {
+	public WebByType(String token, String version1, String version2) throws Exception {
 		ReleaseNotes releaseNotes = new ReleaseNotes(token);
 		releaseNotes.createExcelForChanges(version1, version2);
 	}
 	
 	@Override
-	public HashMap<String, HashMap<String, String>> fetchChangesByDescription(String verison1, String version2)
+	public HashMap<String, HashMap<String, String>> fetchChangesByType(String types)
 			throws Exception {
 		HashMap<String, HashMap<String, String>> releaseNotesMap = new HashMap<String, HashMap<String, String>>();
 		HashMap<String, String> versionMap;
@@ -54,34 +54,41 @@ public class WebByDescription implements ByDescription {
 			//Iterate through each rows from ReleaseNotes sheet
 			int rowLen = sheet.getLastRowNum();
 			for(int i = 1; i <= rowLen; i++) {
-				int versionIndex = columnMap.get("Fix Version/s");
-				String version = sheet.getRow(i).getCell(versionIndex).toString();
-				int keyIndex = columnMap.get("Key");
-				String key = sheet.getRow(i).getCell(keyIndex).toString();
-				int summaryIndex = columnMap.get("Summary");
-				String summary = sheet.getRow(i).getCell(summaryIndex).toString();
+				int typeIndex = columnMap.get("Issue Type");
+				Cell type = sheet.getRow(i).getCell(typeIndex); 
 				
-				if(releaseNotesMap.containsKey(version)) {
-					versionMap = releaseNotesMap.get(version);
+				if(!type.toString().equals(types)) {
+					continue;
+				}
+				
+				int versionIndex = columnMap.get("Fix Version/s");
+				Cell version = sheet.getRow(i).getCell(versionIndex);
+				int keyIndex = columnMap.get("Key");
+				Cell key = sheet.getRow(i).getCell(keyIndex);
+				int summaryIndex = columnMap.get("Summary");
+				Cell summary = sheet.getRow(i).getCell(summaryIndex);
+				
+				if(releaseNotesMap.containsKey(version.toString())) {
+					versionMap = releaseNotesMap.get(version.toString());
 				} else {
 					versionMap = new HashMap<String, String>();
 				}
-				versionMap.put(key, summary);
-				releaseNotesMap.put(version, versionMap);
+				versionMap.put(key.toString(), summary.toString());
+				releaseNotesMap.put(version.toString(), versionMap);
 				
 			}
 			file.close();
 			
 			//For debug purpose
-//			for(String key : releaseNotesMap.keySet()) {
-//				HashMap<String, String> map = releaseNotesMap.get(key);
-//				System.out.println();
-//				System.out.println(key);
-//				System.out.println();
-//				for(String str : map.keySet()) {
-//					System.out.println(str + "   " + map.get(str));
-//				}
-//			}
+			for(String key : releaseNotesMap.keySet()) {
+				HashMap<String, String> map = releaseNotesMap.get(key);
+				System.out.println();
+				System.out.println(key);
+				System.out.println();
+				for(String str : map.keySet()) {
+					System.out.println(str + "   " + map.get(str));
+				}
+			}
 		}catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}catch(IOException e) {

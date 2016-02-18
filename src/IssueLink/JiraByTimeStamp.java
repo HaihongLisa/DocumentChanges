@@ -1,83 +1,83 @@
 package IssueLink;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.Method;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import Policies.ByDescription;
+import Policies.ByTimeStamp;
 
 /**
- * Default Jira policy, by which it gets changes for two versions
- * It override ByDescription function and return HashMap<HashMap<String, HashMap<String, String>>>
+ * Jira by issue timestamp(updated timestamp) policy, by which it gets changes on the specific date
+ * It override ByTimeStamp function and return HashMap<HashMap<String, HashMap<String, String>>>
  * 	Key: version value: release notes map for that version with key: id, value: summary
  * @author Haihong Luo
  *
  */
-public class JiraByDescription implements ByDescription {
+public class JiraByTimeStamp implements ByTimeStamp {
 	HashMap<String, String> versionURL;
 	private String base = "https://issues.apache.org/jira/issues/?jql=";
 	private String token;
+	private String version1;
 	private String version2;
 	
 	/**
 	 * Call JiraIssue functions to construct versionURL
 	 * @param token
 	 * 	Project name such as CASSANDRA
+	 * @param timeStamp
+	 * 	Jira issue updated timestamp
 	 * @throws Exception
 	 */
-	public JiraByDescription(String token) throws Exception {
+	public JiraByTimeStamp(String token, String version1, String version2, String timeStamp) throws Exception {
 		this.token = token;
+		this.version1 = version1;
+		this.version2 = version2;
 		JiraIssue jiraissue = new JiraIssue(token);
 		jiraissue.getLinks();
 		versionURL = jiraissue.getVersionURL();
 	}
-	
-	/**
-	 * Fetch changes by description which is default policy
-	 * It fetch changes for versions
-	 * @return
-	 * 	HashMap<String, HashMap<String, String>>
-	 * 	Key: version
-	 * 	Value: Issue list map for that version with key: Jira Issue ID and value: Jira Issue Description
-	 */
+
 	@Override
-	public HashMap<String, HashMap<String, String>> fetchChangesByDescription(String version1, String version2) throws Exception {
-		this.version2 = version2;
-		HashMap<String, HashMap<String, String>> issuesMap = new HashMap<String, HashMap<String, String>>();
-		if(!versionURL.containsKey(version1) || !versionURL.containsKey(version2)) {
-			throw new IllegalArgumentException("Cannot find related version in the Jira versions list, please select another version");
-		}
-		
-		for(String version : versionURL.keySet()) {
+	public HashMap<String, HashMap<String, String>> fetchChangesByTimeStamp(String timeStamp) throws Exception {
+		// TODO Auto-generated method stub
+		HashMap<String, HashMap<String, String>> issueTypeMap = new HashMap<String, HashMap<String, String>>();
+		for(String version: versionURL.keySet()) {
 			if(compareVersion(version,version1) > 0 && compareVersion(version, version2) <= 0) {
 				HashMap<String, String> map = new HashMap<>();
+				
+				String page = base + "fixVersion+%3D+" + version + "+AND+project+%3D+" + token;
+				Document doc = Jsoup.connect(page).get();
+				Element view = doc.select("div[class=list-view]").first();
+				System.out.println(view);
 				//Hardcode for different pages according to Jira Rules since cannot find next page link using Jsoup for Jira
-				for(int i = 0; i < 10; i++) {
-					int index = 50 * i;
-					String page = base + "fixVersion+%3D+" + version + "+AND+project+%3D+" + token + "&startIndex=" + index;
-					Document doc = Jsoup.connect(page).get();
+//				for(int i = 0; i < 10; i++) {
+//					int index = 50 * i;
+//					String page = base + "fixVersion+%3D+" + version + "+AND+project+%3D+" + token + "&startIndex=" + index;
+//					Document doc = Jsoup.connect(page).get();
+//					Element view = doc.select("div[class=list-view]").first();
 					
 					//For each page get issue list
-					Elements links = doc.select("li[data-key]");
-					for(Element element : links) {
-						String id = element.attr("data-key");
-						String descr = element.attr("title");
-						map.put(id, descr);
-					}
-				}
-				issuesMap.put(version, map);
+//					Elements links = doc.select("li[data-key]");
+//					for(Element element : links) {
+//						//Fetch issueType
+//						String issueType = element.select("img").first().attr("alt");
+//						String id = element.attr("data-key");
+//						String descr = element.attr("title");
+//	
+//						if(issueType.equals(timeStamp)) {
+//							map.put(id, descr);
+//						}
+//					}
+//				}
+				issueTypeMap.put(version, map);
 			}
 		}
-		return issuesMap;
+		return issueTypeMap;
 	}
-		
+	
 	
 	/** Compare whether the two version is same or not
 	 * @param: 
@@ -111,16 +111,8 @@ public class JiraByDescription implements ByDescription {
         return 0;
     }
     
-    //Test purpose, need to delete in the final release
     public static void main(String[] args) throws Exception {
-    	JiraByDescription test = new JiraByDescription("CASSANDRA");
-    	HashMap<String, HashMap<String, String>> map = test.fetchChangesByDescription("2.1.1", "2.1.3");
-    	for(String key : map.keySet()) {
-    		HashMap<String, String> issueMap = map.get(key);
-    		System.out.println(key);
-    		for(String str : issueMap.keySet()) {
-    			System.out.println(str +  "     " + issueMap.get(str));
-    		}
-    	}
+    	JiraByTimeStamp test = new JiraByTimeStamp("CASSANDRA", "2.1.1", "2.1.3", "N");
+    	HashMap<String, HashMap<String, String>> map = test.fetchChangesByTimeStamp("New Feature");
     }
 }
