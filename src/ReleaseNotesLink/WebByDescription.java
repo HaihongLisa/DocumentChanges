@@ -72,16 +72,6 @@ public class WebByDescription implements ByDescription {
 			}
 			file.close();
 			
-			//For debug purpose
-//			for(String key : releaseNotesMap.keySet()) {
-//				HashMap<String, String> map = releaseNotesMap.get(key);
-//				System.out.println();
-//				System.out.println(key);
-//				System.out.println();
-//				for(String str : map.keySet()) {
-//					System.out.println(str + "   " + map.get(str));
-//				}
-//			}
 		}catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}catch(IOException e) {

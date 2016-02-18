@@ -43,17 +43,18 @@ public class ExcelByKeyWord implements ByKeyWord{
 				int versionIndex = columnMap.get("Fix Version/s");
 				String version = sheet.getRow(i).getCell(versionIndex).toString();
 				if(compareVersion(version, version1) > 0 && compareVersion(version, version2) <= 0) {
-					int timeStampIndex = columnMap.get("Updated");
-					String updateTime = sheet.getRow(i).getCell(timeStampIndex).toString();
-					if(!updateTime.contains(word)) {
-						continue;
-					}
-					
-					int keyIndex = columnMap.get("Key");
-					String key = sheet.getRow(i).getCell(keyIndex).toString();
+					int descIndex = columnMap.get("Description");
+					String descrpiton = sheet.getRow(i).getCell(descIndex).toString();
 					
 					int summaryIndex = columnMap.get("Summary");
 					String summary = sheet.getRow(i).getCell(summaryIndex).toString();
+					if(!descrpiton.toLowerCase().contains(word.toLowerCase()) && !summary.toLowerCase().contains(word.toLowerCase())) {
+						continue;
+					}
+					
+					
+					int keyIndex = columnMap.get("Key");
+					String key = sheet.getRow(i).getCell(keyIndex).toString();
 					
 					if(issuesMap.containsKey(version)) {
 						versionMap = issuesMap.get(version);
@@ -103,17 +104,4 @@ public class ExcelByKeyWord implements ByKeyWord{
         }
         return 0;
     }
-
-	public static void main(String[] args) throws Exception {
-		ExcelByTimeStamp test = new ExcelByTimeStamp ("/Users/luoluo/Desktop/JiraIssues.xls", "2.1.10", "2.1.14");
-		HashMap<String, HashMap<String, String>> map = test.fetchChangesByTimeStamp("11-Feb-2016");
-		for(String str : map.keySet()) {
-			System.out.println(str);
-			HashMap<String, String> issues = map.get(str);
-			for(String key : issues.keySet()) {
-				System.out.println(key + " : " + issues.get(key));
-			}
-		}
-	}
-
 }

@@ -101,16 +101,4 @@ public class ExcelByType implements ByType {
         }
         return 0;
     }
-    
-	public static void main(String[] args) throws Exception {
-		ExcelByType test = new ExcelByType ("/Users/luoluo/Desktop/JiraIssues.xls", "2.1.10", "2.1.14");
-		HashMap<String, HashMap<String, String>> map = test.fetchChangesByType("Bug");
-		for(String str : map.keySet()) {
-			System.out.println(str);
-			HashMap<String, String> issues = map.get(str);
-			for(String key : issues.keySet()) {
-				System.out.println(key + " : " + issues.get(key));
-			}
-		}
-	}
 }

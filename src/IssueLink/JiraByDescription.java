@@ -110,17 +110,4 @@ public class JiraByDescription implements ByDescription {
         }
         return 0;
     }
-    
-    //Test purpose, need to delete in the final release
-    public static void main(String[] args) throws Exception {
-    	JiraByDescription test = new JiraByDescription("CASSANDRA");
-    	HashMap<String, HashMap<String, String>> map = test.fetchChangesByDescription("2.1.1", "2.1.3");
-    	for(String key : map.keySet()) {
-    		HashMap<String, String> issueMap = map.get(key);
-    		System.out.println(key);
-    		for(String str : issueMap.keySet()) {
-    			System.out.println(str +  "     " + issueMap.get(str));
-    		}
-    	}
-    }
 }

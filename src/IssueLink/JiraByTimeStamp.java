@@ -51,27 +51,6 @@ public class JiraByTimeStamp implements ByTimeStamp {
 				String page = base + "fixVersion+%3D+" + version + "+AND+project+%3D+" + token;
 				Document doc = Jsoup.connect(page).get();
 				Element view = doc.select("div[class=list-view]").first();
-				System.out.println(view);
-				//Hardcode for different pages according to Jira Rules since cannot find next page link using Jsoup for Jira
-//				for(int i = 0; i < 10; i++) {
-//					int index = 50 * i;
-//					String page = base + "fixVersion+%3D+" + version + "+AND+project+%3D+" + token + "&startIndex=" + index;
-//					Document doc = Jsoup.connect(page).get();
-//					Element view = doc.select("div[class=list-view]").first();
-					
-					//For each page get issue list
-//					Elements links = doc.select("li[data-key]");
-//					for(Element element : links) {
-//						//Fetch issueType
-//						String issueType = element.select("img").first().attr("alt");
-//						String id = element.attr("data-key");
-//						String descr = element.attr("title");
-//	
-//						if(issueType.equals(timeStamp)) {
-//							map.put(id, descr);
-//						}
-//					}
-//				}
 				issueTypeMap.put(version, map);
 			}
 		}
@@ -109,10 +88,5 @@ public class JiraByTimeStamp implements ByTimeStamp {
             index2++;
         }
         return 0;
-    }
-    
-    public static void main(String[] args) throws Exception {
-    	JiraByTimeStamp test = new JiraByTimeStamp("CASSANDRA", "2.1.1", "2.1.3", "N");
-    	HashMap<String, HashMap<String, String>> map = test.fetchChangesByTimeStamp("New Feature");
     }
 }

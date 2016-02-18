@@ -158,7 +158,6 @@ public class TextButton extends JFrame{
 			 }
 			 
 			 if(policySet.contains("byKeyWord") && !keyword.equals("")) {
-				 System.out.println("word :" + "I should not be called");
 				 ExcelByKeyWord excelByKeyWord = new ExcelByKeyWord(location, version1, version2);
 				 HashMap<String, HashMap<String, String>> wordMap = excelByKeyWord.fetchChangesByKeyWord(keyword);
 				 mergeHashMap(issuesMap, wordMap);

@@ -174,10 +174,4 @@ public class ReleaseNotes {
 			e.printStackTrace();
 		}
 	}
-	
-	//For test purpose, need to delete in the final release
-	public static void main(String[] args) throws Exception {
-		ReleaseNotes test = new ReleaseNotes("CASSANDRA");
-		test.createExcelForChanges("2.1.10", "2.1.13");
-	}
 }

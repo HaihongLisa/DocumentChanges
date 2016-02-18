@@ -111,17 +111,4 @@ public class JiraByType implements ByType {
 	        }
 	        return 0;
 	    }
-	    
-    //Test purpose, need to delete in the final release
-    public static void main(String[] args) throws Exception {
-    	JiraByType test = new JiraByType("CASSANDRA", "2.1.1", "2.1.3", "New Feature");
-    	HashMap<String, HashMap<String, String>> map = test.fetchChangesByType("New Feature");
-    	for(String key : map.keySet()) {
-    		HashMap<String, String> issueMap = map.get(key);
-    		System.out.println(key);
-    		for(String str : issueMap.keySet()) {
-    			System.out.println(str +  "     " + issueMap.get(str));
-    		}
-    	}
-    }	
 }
